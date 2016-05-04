@@ -35,7 +35,6 @@ exports.submit = function (dir) {
 
             var img = files.image[0];
             var name = fields.name[0] || img.originalFilename;
-
             var filePath = path.basename(img.path);
 
             Photo.create({

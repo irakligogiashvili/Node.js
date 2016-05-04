@@ -60,8 +60,9 @@ exports.download = function (dir) {
         Photo.findById(id, function (err, photo) {
             if (err) return next(err);
             var filePath = join(dir, photo.path);
+            var ext = path.extname(filePath);
 
-            res.download(filePath);
+            res.download(filePath, photo.name + ext);
         });
     };
 };

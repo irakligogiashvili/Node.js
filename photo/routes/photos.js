@@ -27,8 +27,6 @@ exports.submit = function (dir) {
     return function (req, res, next) {
         var form = new multiparty.Form({
             encoding: 'utf8',
-            autoFiles: true,
-            uploadDir: dir,
             maxFields: 10,
             maxFilesSize: 2097152
         });
@@ -39,6 +37,7 @@ exports.submit = function (dir) {
             var img = files.image[0];
             var name = fields.name[0] || img.originalFilename;
             var filePath = path.basename(img.path);
+            var destinationPath = join(dir, filePath);
             var extension = img.path.split(/[. ]+/).pop();
             var type = mime.lookup(img.path);
 
@@ -49,13 +48,17 @@ exports.submit = function (dir) {
                     return next(new Error("Not allowed mime type"));
                 });
             } else {
-                Photo.create({
-                    name: name,
-                    path: filePath
-                }, function (err) {
+                fs.rename(img.path, destinationPath, function (err) {
                     if (err) return next(err);
 
-                    res.redirect('/');
+                    Photo.create({
+                        name: name,
+                        path: filePath
+                    }, function (err) {
+                        if (err) return next(err);
+
+                        res.redirect('/');
+                    });
                 });
             }
         });

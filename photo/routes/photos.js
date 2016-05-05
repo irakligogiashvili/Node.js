@@ -28,6 +28,7 @@ exports.submit = function (dir) {
         var form = new multiparty.Form({
             encoding: 'utf8',
             maxFields: 10,
+            autoFiles: true,
             maxFilesSize: 2097152
         });
 

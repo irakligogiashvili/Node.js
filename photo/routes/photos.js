@@ -2,7 +2,10 @@ var Photo = require('../models/Photo');
 var multiparty = require('multiparty');
 var path = require('path');
 var fs = require('fs');
+var mime = require('mime');
 var join = path.join;
+var IMAGE_TYPES = ['image/jpeg', 'image/png'];
+var IMAGE_EXT = ['jpeg', 'png', 'jpg'];
 
 exports.list = function (req, res, next) {
     Photo.find({}, function (err, photos) {
@@ -36,6 +39,17 @@ exports.submit = function (dir) {
             var img = files.image[0];
             var name = fields.name[0] || img.originalFilename;
             var filePath = path.basename(img.path);
+
+            var extension = img.path.split(/[. ]+/).pop();
+            var type = mime.lookup(img.path);
+
+            if (IMAGE_TYPES.indexOf(type) == -1 || IMAGE_EXT.indexOf(extension) == -1) {
+                fs.unlink(img.path, function (err) {
+                    if (err) return next(err);
+
+                    return next("Not allowed mime type");
+                });
+            }
 
             Photo.create({
                 name: name,

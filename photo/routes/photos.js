@@ -48,16 +48,16 @@ exports.submit = function (dir) {
 
                     return next(new Error("Not allowed mime type"));
                 });
+            } else {
+                Photo.create({
+                    name: name,
+                    path: filePath
+                }, function (err) {
+                    if (err) return next(err);
+
+                    res.redirect('/');
+                });
             }
-
-            Photo.create({
-                name: name,
-                path: filePath
-            }, function (err) {
-                if (err) return next(err);
-
-                res.redirect('/');
-            });
         });
 
         form.on('error', function (err) {

@@ -39,7 +39,6 @@ exports.submit = function (dir) {
             var img = files.image[0];
             var name = fields.name[0] || img.originalFilename;
             var filePath = path.basename(img.path);
-
             var extension = img.path.split(/[. ]+/).pop();
             var type = mime.lookup(img.path);
 
@@ -47,7 +46,7 @@ exports.submit = function (dir) {
                 fs.unlink(img.path, function (err) {
                     if (err) return next(err);
 
-                    return next("Not allowed mime type");
+                    return next(new Error("Not allowed mime type"));
                 });
             }
 

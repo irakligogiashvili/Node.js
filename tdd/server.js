@@ -34,7 +34,6 @@ function throwsTest(cb) {
 deleteTest();
 addTest();
 throwsTest();
-
 doAsyncTest(function () {
     console.log('Completed ' + testsCompleted + ' tests');
 });

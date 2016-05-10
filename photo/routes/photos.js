@@ -10,7 +10,7 @@ var mongoose = require('mongoose')
 mongoose.connect('mongodb://localhost/photo_app');
 var conn = mongoose.connection;
 
-var gfs;
+var gfs = null;
 Grid.mongo = mongoose.mongo;
 
 conn.once('open', function () {
@@ -38,6 +38,8 @@ exports.form = function (req, res) {
 };
 
 exports.submit = function (req, res, next) {
+    if (!gfs) return next(new Error("Connection Error"));
+
     var form = new multiparty.Form({
         encoding: 'utf8',
         maxFields: 10,

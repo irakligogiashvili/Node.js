@@ -1,5 +1,6 @@
 var http = require('http')
     , path = require('path')
+    , url = require('url')
     , staticFile = require('./modules/send_file');
 
 var ROOT = __dirname;
@@ -15,12 +16,13 @@ var urlMap = {
 };
 
 var server = http.createServer(function (request, response) {
+    var urlPath = url.parse(request.url).pathname;
 
     if (request.url.indexOf('/public') != -1) {
         staticFile(request, response, ROOT);
-    } else if (urlMap[request.url]) {
+    } else if (urlMap[urlPath]) {
 
-        urlMap[request.url](request, response);
+        urlMap[urlPath](request, response);
 
     } else {
         response.statusCode = 404;

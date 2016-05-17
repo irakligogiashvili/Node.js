@@ -31,5 +31,6 @@ function parser(req, res, root) {
 
     } else {
         sendResponse(res, {error: 404, msg: 'Not Found'});
+        return;
     }
 }

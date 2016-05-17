@@ -1,6 +1,6 @@
 module.exports.sendResponse = sendResponse;
 
 function sendResponse(res, error) {
-    res.statusCode = error.code;
+    res.statusCode = error.error;
     res.end(error.msg);
 }

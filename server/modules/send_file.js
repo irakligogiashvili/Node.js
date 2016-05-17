@@ -1,26 +1,12 @@
 var fs = require('fs')
-    , url = require('url'),
-    path = require('path');
+    , sendResponse = require('./util').sendResponse
+    , path = require('path');
 
-module.exports = sendFile;
+module.exports.sendFile = sendFile;
+module.exports.send = send;
 
-function sendFile(req, res, root) {
-    var ROOT = root;
-
-    var stream = null,
-        filePath = url.parse(req.url).pathname;
-
-    try {
-        filePath = decodeURIComponent(filePath);
-    } catch (e) {
-        sendResponse(400, 'Bad Request');
-        return;
-    }
-
-    if (~filePath.indexOf('\0')) {
-        sendResponse(400, 'Bad Request');
-        return;
-    }
+function sendFile(res, filePath, root) {
+    var filePath = filePath, ROOT = root;
 
     var arr = filePath.split("/");
     arr.splice(0, 2);
@@ -29,20 +15,26 @@ function sendFile(req, res, root) {
     filePath = path.normalize(path.join(ROOT, filePath));
 
     if (filePath.indexOf(ROOT) != 0) {
-        sendResponse(404, 'Not Found');
+        sendResponse(res, {error: 404, msg: 'Not Found'});
         return;
     }
+
+    send(res, filePath);
+}
+
+function send(res, filePath) {
+    var stream = null;
 
     fs.stat(filePath, function (err, stat) {
         if (err) {
             if ('ENOENT' == err.code) {
-                sendResponse(404, 'Not Found');
+                sendResponse(res, {error: 404, msg: 'Not Found'});
                 return;
             } else if (!stat.isFile()) {
-                sendResponse(404, 'Not Found');
+                sendResponse(res, {error: 404, msg: 'Not Found'});
                 return;
             } else {
-                sendResponse(500, 'Internal Server Error');
+                sendResponse(res, {error: 500, msg: 'Internal Server Error'});
                 return;
             }
         } else {
@@ -51,7 +43,7 @@ function sendFile(req, res, root) {
             stream.pipe(res);
 
             stream.on('error', function (err) {
-                sendResponse(500, 'Internal Server Error');
+                sendResponse(res, {error: 500, msg: 'Internal Server Error'});
                 return;
             });
         }
@@ -60,9 +52,4 @@ function sendFile(req, res, root) {
     res.on('close', function () {
         if (stream)stream.close();
     });
-}
-
-function sendResponse(code, text) {
-    res.statusCode = code;
-    res.end(text);
 }

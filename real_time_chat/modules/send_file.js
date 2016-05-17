@@ -2,9 +2,11 @@ var fs = require('fs')
     , url = require('url'),
     path = require('path');
 
-var ROOT = './../';
+module.exports = sendFile;
 
-function sendFile(req, res) {
+function sendFile(req, res, root) {
+    var ROOT = root;
+
     var stream = null,
         filePath = url.parse(req.url).pathname;
 
@@ -20,6 +22,10 @@ function sendFile(req, res) {
         return;
     }
 
+    var arr = filePath.split("/");
+    arr.splice(0, 2);
+    filePath = arr.join('/');
+
     filePath = path.normalize(path.join(ROOT, filePath));
 
     if (filePath.indexOf(ROOT) != 0) {
@@ -27,7 +33,7 @@ function sendFile(req, res) {
         return;
     }
 
-    fs.stat(path, function (err, stat) {
+    fs.stat(filePath, function (err, stat) {
         if (err) {
             if ('ENOENT' == err.code) {
                 sendResponse(404, 'Not Found');
